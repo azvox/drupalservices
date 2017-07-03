@@ -24,7 +24,7 @@ class views_json_query_handler_field extends views_handler_field {
    * Renders field.
    */
   function render_field($value) {
-    return check_plain($value);
+    return $value;
   }
 
   /**

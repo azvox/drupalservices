@@ -91,7 +91,7 @@ class views_json_query_plugin_query_json extends views_plugin_query {
     }
 
     // As learned from Feeds caching mechanism, save to file.
-    file_save_data($result->data, $cache_file_uri, FILE_EXISTS_REPLACE);
+    file_unmanaged_save_data($result->data, $cache_file_uri, FILE_EXISTS_REPLACE);
     cache_set($cache_file, $result->headers);
     return $result->data;
   }
@@ -118,9 +118,11 @@ class views_json_query_plugin_query_json extends views_plugin_query {
       $data->contents = $this->fetch_file($this->options['json_file']);
     }
     catch (Exception $e) {
-      drupal_set_message(
-        t('Views Json Query') . ': ' . $e->getMessage(), 'error'
-      );
+      if ($this->options['show_errors']) {
+        drupal_set_message(
+          t('Views Json Query') . ': ' . $e->getMessage(), 'error'
+        );
+      }
       return;
     }
 
@@ -224,7 +226,7 @@ class views_json_query_plugin_query_json extends views_plugin_query {
     foreach ($ret as $k => $row) {
       $check = TRUE;
       foreach ($view->build_info['query'] as $filter) {
-        $l = $row[$filter[0]];
+        $l = is_object($row) ? $row->{$filter[0]} : $row[$filter[0]];
         $check = $this->ops($filter[1], $l, $filter[2]);
         if (!$check) {
           break;
